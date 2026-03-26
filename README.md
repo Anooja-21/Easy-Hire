@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 # 🏛️ EasyHire — Government Job Exam Tracker
 
-> Find every Central & Kerala state government exam you're eligible for — with live web scraping, deadline alerts, AI prep plans, and previous papers.
+> A full-stack web portal that automatically matches government exam aspirants in Kerala to eligible UPSC, SSC, IBPS, RRB, and Kerala PSC examinations based on their profile — with live web scraping, deadline tracking, and an integrated Study Assistant chatbot.
 
 ---
 
@@ -178,15 +177,17 @@ The backend checks 4 criteria per exam:
 
 ---
 
-## 🤖 AI Prep Plans
+## 🤖 Study Assistant
 
-When you click "Generate" in any exam detail, EasyHire calls the **Claude API** directly from the browser to generate a personalised preparation strategy including:
+EasyHire includes a built-in **Study Assistant chatbot** powered by the Claude API. It gives aspirants a conversational way to get exam guidance, including:
 
-- Key focus areas
-- Specific book recommendations
-- Study plan (based on days remaining)
-- Kerala-specific tips
-- Common mistakes to avoid
+- Syllabus breakdowns and topic-wise advice
+- Book and resource recommendations
+- Study strategies based on time remaining
+- Kerala-specific exam tips
+- Answers to questions about exam pattern, cutoffs, and more
+
+The chatbot is accessible directly within the app interface and uses the Claude API to deliver context-aware, personalised responses.
 
 ---
 
@@ -305,7 +306,3 @@ curl http://localhost:5000/api/stats
 ---
 
 *Built with Flask · BeautifulSoup · React · Vite · Claude API*
-=======
-# Easy-Hire
-A full-stack web portal that automatically matches government exam aspirants in Kerala to eligible UPSC, SSC, IBPS, RRB, and Kerala PSC examinations based on their profile, with live scraping, deadline tracking, and an integrated Study Assistant chatbot.
->>>>>>> 8ad3e510e2c2bd9f86af27f5b0e520d87ab991d2

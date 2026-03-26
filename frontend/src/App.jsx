@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import StudyChatbot from './StudyChatbot';
+import AdminDashboard from './AdminDashboard';
 // ─── API CONFIG ───────────────────────────────────────────────────────────
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -372,7 +373,7 @@ export default function App() {
         </div>
       )}
 
-      {screen === "home"      && <HomeScreen onLogin={()=>setScreen("login")} onRegister={()=>setScreen("register")} user={user} onLogout={handleLogout} onGoSaved={()=>setScreen("saved")} onCheckEligibility={()=>setScreen("profile")} onGoProfile={()=>setScreen("profile")} onGoDashboard={()=>setScreen("dashboard")} hasData={!!apiData} />}
+      {screen === "home"      && <HomeScreen onLogin={()=>setScreen("login")} onRegister={()=>setScreen("register")} user={user} onLogout={handleLogout} onGoSaved={()=>setScreen("saved")} onCheckEligibility={()=>setScreen("profile")} onGoProfile={()=>setScreen("profile")} onGoDashboard={()=>setScreen("dashboard")} onGoAdmin={()=>setScreen("admin")} hasData={!!apiData} />}
       {screen === "login"     && <LoginScreen onLogin={handleLogin} onBack={()=>setScreen("home")} onRegister={()=>setScreen("register")} showToast={showToast} />}
       {screen === "register"  && <RegisterScreen onRegister={handleRegister} onBack={()=>setScreen("login")} onLogin={()=>setScreen("login")} showToast={showToast} />}
       {screen === "profile"   && <ProfileScreen onSubmit={handleProfileSubmit} onBack={()=>setScreen(apiData?"dashboard":"home")} loading={loading} initialProfile={profile} userName={user?.name} />}
@@ -398,6 +399,7 @@ export default function App() {
           onLogoClick={()=>setScreen("home")}
         />
       )}
+      {screen === "admin" && <AdminDashboard onBack={() => setScreen("home")} />}
       {selectedExam && (
         <ExamModal
           exam={selectedExam} profile={profile}
@@ -407,7 +409,7 @@ export default function App() {
         />
       )}
 
-      <StudyChatbot />
+      {screen !== "admin" && <StudyChatbot />}
     </>
   );
 }
@@ -448,7 +450,7 @@ function TopNav({ user, onLogout, onGoSaved, onLogin, onRegister, rightExtra, on
 
 
 // ─── HOME SCREEN ──────────────────────────────────────────────────────────
-function HomeScreen({ onLogin, onRegister, user, onLogout, onGoSaved, onCheckEligibility, onGoDashboard, hasData }) {
+function HomeScreen({ onLogin, onRegister, user, onLogout, onGoSaved, onCheckEligibility, onGoDashboard, onGoAdmin, hasData }) {
   return (
     <div className="grid-bg" style={{ minHeight:"100vh", display:"flex", flexDirection:"column" }}>
       <TopNav user={user} onLogout={onLogout} onGoSaved={onGoSaved} onLogin={onLogin} onRegister={onRegister} onLogoClick={()=>{}} />
@@ -495,7 +497,7 @@ function HomeScreen({ onLogin, onRegister, user, onLogout, onGoSaved, onCheckEli
                 </button>
               )}
               <div style={{ marginTop:4, padding:"12px 20px", background:C.greenL, border:`1px solid ${C.greenB}`, borderRadius:10, display:"inline-block", fontSize:14, color:C.green }}>
-                ✓ Logged in as <strong>{user.name}</strong>
+                {"✓"} Logged in as <strong>{user.name}</strong>
               </div>
             </div>
           ) : (
@@ -517,6 +519,11 @@ function HomeScreen({ onLogin, onRegister, user, onLogout, onGoSaved, onCheckEli
           )}
 
           <div style={{ width:80, height:2, background:`linear-gradient(90deg,transparent,${C.gold},transparent)`, margin:"60px auto 0" }} />
+          <div style={{ marginTop: 20, textAlign: "center" }}>
+            <button className="btn-ghost" onClick={onGoAdmin} style={{ fontSize: 12, color: C.textMid, padding: "4px 8px" }}>
+              🛡️ Admin Panel
+            </button>
+          </div>
 
           <div style={{ marginTop:52, textAlign:"left" }}>
             <p className="font-display" style={{ fontSize:34, fontWeight:700, color:C.text, marginBottom:44, textAlign:"center" }}>
@@ -1118,7 +1125,7 @@ function ExamModal({ exam, profile, onClose, isSaved, onToggleSave }) {
                   <div key={cat} style={{ display:"flex", alignItems:"center", gap:6 }}>
                     <span style={{ fontSize:13, color:C.textSub }}>{cat.replace("_","/")}</span>
                     <span style={{ fontSize:13, color:C.amber, fontWeight:700 }}>{`+${yrs} yrs`}</span>
-                    {profile?.category===cat&&<span style={{ color:C.green, fontSize:11, fontWeight:700 }}>✓ yours</span>}
+                    {profile?.category===cat&&<span style={{ color:C.green, fontSize:11, fontWeight:700 }}>{"✓"} yours</span>}
                   </div>
                 ))}
               </div>
