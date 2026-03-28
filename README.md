@@ -1,6 +1,10 @@
 # 🏛️ EasyHire — Government Job Exam Tracker
 
+<<<<<<< HEAD
 > A full-stack web portal that automatically matches government exam aspirants in Kerala to eligible UPSC, SSC, IBPS, RRB, and Kerala PSC examinations based on their profile — with live web scraping, deadline tracking, an integrated Study Assistant chatbot, and a full Admin Panel.
+=======
+> A full-stack web portal that automatically matches government exam aspirants in Kerala to eligible UPSC, SSC, IBPS, RRB, and Kerala PSC examinations based on their profile — with live web scraping, deadline tracking, and an integrated Study Assistant chatbot.
+>>>>>>> main
 
 ---
 
@@ -379,6 +383,7 @@ The backend checks 4 criteria per exam:
 ---
 
 ## 🤖 Study Assistant
+<<<<<<< HEAD
 
 EasyHire includes a built-in **Study Assistant chatbot** powered by the Claude API:
 
@@ -389,6 +394,18 @@ EasyHire includes a built-in **Study Assistant chatbot** powered by the Claude A
 - Answers to questions about exam pattern, cutoffs, and more
 
 > The Study Assistant is **hidden in the Admin Panel** and only shown to regular users.
+=======
+
+EasyHire includes a built-in **Study Assistant chatbot** powered by the Claude API. It gives aspirants a conversational way to get exam guidance, including:
+
+- Syllabus breakdowns and topic-wise advice
+- Book and resource recommendations
+- Study strategies based on time remaining
+- Kerala-specific exam tips
+- Answers to questions about exam pattern, cutoffs, and more
+
+The chatbot is accessible directly within the app interface and uses the Claude API to deliver context-aware, personalised responses.
+>>>>>>> main
 
 ---
 
@@ -513,4 +530,8 @@ curl http://localhost:5000/api/admin/reports/users?format=csv \
 
 ---
 
+<<<<<<< HEAD
 *Built with Flask · BeautifulSoup · React · Vite · Claude API · SQLite*
+=======
+*Built with Flask · BeautifulSoup · React · Vite · Claude API*
+>>>>>>> main
