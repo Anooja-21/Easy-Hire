@@ -41,12 +41,17 @@ except ImportError:
         def start(self): pass
 
 from auth import hash_password, verify_password
+from admin_routes import (
+    admin_bp, init_admin_schema, get_user_notifications,
+    log_access, get_setting, set_setting
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("EasyHire")
 
 app = Flask(__name__)
 CORS(app)
+app.register_blueprint(admin_bp)
 
 DB_PATH = "easyhire.db"
 HEADERS = {
@@ -619,6 +624,8 @@ def login():
         user = db.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
     if not user or not verify_password(password, user["password"]):
         return jsonify({"error":"Invalid email or password"}), 401
+    if dict(user).get("status") == "blocked":
+        return jsonify({"error":"Your account has been suspended. Contact support."}), 403
     token = create_session(user["id"])
     with sqlite3.connect(DB_PATH) as db:
         db.row_factory = sqlite3.Row
@@ -690,7 +697,12 @@ def unsave_exam(current_user, exam_id):
 
 # ─── CORE ROUTES ──────────────────────────────────────────────────────────────
 
-@app.route("/api/health", methods=["GET"])
+@app.route("/api/notifications", methods=["GET"])
+@require_auth
+def user_notifications(current_user):
+    return jsonify({"notifications": get_user_notifications(current_user["id"])})
+
+
 def health():
     return jsonify({"status":"ok","timestamp":datetime.utcnow().isoformat()})
 
@@ -751,12 +763,60 @@ def stats():
 
 # ─── STARTUP ──────────────────────────────────────────────────────────────────
 
+# ── Activity logging hook ──────────────────────────────────────────────────────
+@app.after_request
+def _track_activity(response):
+    """Log every authenticated API call to access_log."""
+    try:
+        path = request.path
+        if not path.startswith("/api/") or path.startswith("/api/admin"):
+            return response
+        token = request.headers.get("Authorization","").replace("Bearer ","").strip()
+        if token:
+            user = get_user_from_token(token)
+            if user:
+                action = f"{request.method} {path}"
+                log_access(user["id"], action, path, request.remote_addr)
+    except Exception:
+        pass
+    return response
+
+
+# ── Scraper with dynamic rescheduling ─────────────────────────────────────────
+def _scrape_and_stamp():
+    run_all_scrapers()
+    try:
+        set_setting("last_scrape_at", datetime.utcnow().isoformat())
+    except Exception:
+        pass
+
+_current_interval = [CACHE_TTL_HOURS]  # mutable container
+
+def _maybe_reschedule():
+    """Check if admin changed the interval; reschedule if so."""
+    try:
+        dirty = get_setting("scrape_interval_dirty", "0")
+        if dirty == "1":
+            new_hours = int(get_setting("scrape_interval_hours", str(CACHE_TTL_HOURS)))
+            if new_hours != _current_interval[0]:
+                try:
+                    scheduler.reschedule_job("scrape_job", trigger="interval", hours=new_hours)
+                    _current_interval[0] = new_hours
+                    log.info(f"Scraper rescheduled to every {new_hours}h")
+                except Exception as e:
+                    log.warning(f"Reschedule failed: {e}")
+            set_setting("scrape_interval_dirty", "0")
+    except Exception:
+        pass
+
 scheduler = BackgroundScheduler()
-scheduler.add_job(run_all_scrapers, "interval", hours=CACHE_TTL_HOURS, id="scrape_job")
+scheduler.add_job(_scrape_and_stamp,   "interval", hours=CACHE_TTL_HOURS, id="scrape_job")
+scheduler.add_job(_maybe_reschedule,   "interval", minutes=1,             id="reschedule_check")
 scheduler.start()
 
 if __name__ == "__main__":
     log.info("EasyHire Backend starting...")
     init_db()
-    run_all_scrapers()
+    init_admin_schema()
+    _scrape_and_stamp()
     app.run(host="0.0.0.0", port=5000, debug=False)
