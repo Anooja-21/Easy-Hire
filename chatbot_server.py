@@ -120,7 +120,7 @@ def seed_questions(db):
     db.executemany("""
         INSERT INTO questions
           (topic,subtopic,question,option_a,option_b,option_c,option_d,answer,explanation,difficulty)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        VALUES (?,?,?,?,?,?,?,?,?,?)
     """, qs)
     print(f"Seeded {len(qs)} questions.")
 
